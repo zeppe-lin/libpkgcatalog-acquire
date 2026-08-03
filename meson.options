@@ -17,11 +17,17 @@ option(
   'man_pages',
   type: 'feature',
   value: 'auto',
-  description: 'Build manual pages with scdoc',
+  description: 'Install generated manual pages',
 )
 option(
   'scan_tool',
   type: 'feature',
   value: 'enabled',
   description: 'Build the pkgcatalog-scan reference frontend',
+)
+option(
+  'html_docs',
+  type: 'feature',
+  value: 'disabled',
+  description: 'Generate and install versioned static HTML documentation',
 )

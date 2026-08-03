@@ -1,0 +1,40 @@
+.\" Generated from docs/man/pkgcatalog_acquire.3.md; do not edit.
+.\"
+.TH "PKGCATALOG_ACQUIRE" "3" "" "libpkgcatalog\-acquire 3.0.0" "libpkgcatalog\-acquire"
+.SH NAME
+pkgcatalog_acquire \- acquire explicit native collections into catalog authority
+.SH SYNOPSIS
+.IP
+.EX
+#include <libpkgcatalog\-acquire/libpkgcatalog\-acquire.h>
+
+pkgcatalog::catalog_snapshot
+pkgcatalog::acquire::acquire_catalog(
+    std::vector<pkgcatalog::acquire::collection_specification> collections,
+    pkgcatalog::acquire::limits limits = {});
+.EE
+.SH DESCRIPTION
+\f[CR]acquire_catalog()\f[R] observes caller\-selected collection roots and returns one sealed \f[CR]pkgcatalog::catalog_snapshot\f[R].
+.PP
+Acquisition is global and two\-pass.
+The adapter first reads every optional root \f[CR]profiles.yml\f[R], parses all profile declarations through \f[CR]libpkgsource\-yaml\f[R], and seals one \f[CR]pkgsource::profile_catalog\f[R].
+It then discovers immediate visible package directories, parses each \f[CR]recipe.yml\f[R], seals source snapshots against the global profiles, seals collection revisions, and invokes catalog sealing.
+.PP
+Collection names, roots, precedence, external revision labels, and declaration provenance are supplied explicitly.
+The library does not discover collections or read package\-manager configuration.
+.SH LIMITS
+\f[CR]pkgcatalog::acquire::limits\f[R] sets the positive maximum number of bytes read for each YAML document.
+The default is 1048576 bytes.
+The same ceiling is supplied to the YAML parser as its document\-byte limit.
+.SH ERRORS
+Request, filesystem, layout, and document\-read failures throw \f[CR]pkgcatalog::acquire::error\f[R].
+YAML grammar failures remain \f[CR]pkgsource::yaml::yaml_error\f[R].
+Source and catalog semantic refusals remain \f[CR]pkgsource::error\f[R] and \f[CR]pkgcatalog::error\f[R].
+.SH AUTHORITY
+The returned catalog snapshot is authoritative.
+Filesystem paths, package directory names, traversal order, and external revision labels are diagnostic observations and provenance, not semantic identity.
+.SH ABI
+The public ABI is \f[CR]libpkgcatalog\-acquire.so.3\f[R].
+Public metadata requires \f[CR]libpkgcatalog >= 3.0.0\f[R]; the YAML adapter is private metadata.
+.SH SEE ALSO
+\f[CR]pkgcatalog_collection_layout(5)\f[R], \f[CR]pkgcatalog\-scan(1)\f[R], \f[CR]libpkgcatalog(3)\f[R], \f[CR]pkgsource_yaml(3)\f[R]

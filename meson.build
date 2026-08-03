@@ -47,5 +47,5 @@ subdir('src')
 if get_option('scan_tool').enabled()
   subdir('tools')
 endif
-subdir('man')
+subdir('docs')
 subdir('tests')

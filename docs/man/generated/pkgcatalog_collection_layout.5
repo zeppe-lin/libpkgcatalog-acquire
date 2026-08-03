@@ -1,0 +1,37 @@
+.\" Generated from docs/man/pkgcatalog_collection_layout.5.md; do not edit.
+.\"
+.TH "PKGCATALOG_COLLECTION_LAYOUT" "5" "" "libpkgcatalog\-acquire 3.0.0" "libpkgcatalog\-acquire"
+.SH NAME
+pkgcatalog_collection_layout \- native collection acquisition layout version 1
+.SH SYNOPSIS
+.IP
+.EX
+collection\-root/
+├── profiles.yml
+└── package\-directory/
+    └── recipe.yml
+.EE
+.SH DESCRIPTION
+A version\-one collection root contains one optional \f[CR]profiles.yml\f[R] and immediate visible package directories.
+Every such directory contains one required regular, non\-symlink \f[CR]recipe.yml\f[R].
+.PP
+Immediate hidden entries are ignored.
+Visible symbolic links and unsupported file types are refused.
+Visible regular root files other than \f[CR]profiles.yml\f[R] are ignored.
+The root itself must contain no symbolic\-link component.
+.PP
+The package directory name is diagnostic only.
+The sealed \f[CR]package.name\f[R] in the recipe is package identity.
+Package\-local files are not traversed or verified by catalog acquisition.
+.SH TWO\-PASS RULE
+All configured \f[CR]profiles.yml\f[R] documents are parsed before any recipe is sealed.
+Their declarations form one global profile namespace.
+Profiles do not shadow by collection precedence.
+.SH STABILITY
+Callers must provide quiescent roots for one acquisition.
+The adapter detects common size\-changing reads but does not create a filesystem snapshot.
+.SH COMPATIBILITY
+The layout does not define Pkgfiles, \f[CR]pkgman.conf\f[R], Git branches, collection discovery, architecture fallback, requirement resolution, or installed state.
+Translation belongs in a separate migration or configuration frontend.
+.SH SEE ALSO
+\f[CR]pkgcatalog_acquire(3)\f[R], \f[CR]pkgcatalog\-scan(1)\f[R], \f[CR]pkgsource_profiles_yaml(5)\f[R], \f[CR]pkgsource_recipe_yaml(5)\f[R]

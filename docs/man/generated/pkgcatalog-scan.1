@@ -1,0 +1,42 @@
+.\" Generated from docs/man/pkgcatalog-scan.1.md; do not edit.
+.\"
+.TH "PKGCATALOG\-SCAN" "1" "" "libpkgcatalog\-acquire 3.0.0" "libpkgcatalog\-acquire"
+.SH NAME
+pkgcatalog\-scan \- validate and inspect explicit native package collections
+.SH SYNOPSIS
+.IP
+.EX
+pkgcatalog\-scan [\-\-max\-document\-bytes N]
+  \-\-collection NAME=ROOT [\-\-collection NAME=ROOT ...]
+  [\-\-external\-revision NAME=REVISION ...]
+.EE
+.SH DESCRIPTION
+\f[CR]pkgcatalog\-scan\f[R] is the reference client for \f[CR]libpkgcatalog\-acquire\f[R].
+Repeated \f[CR]\-\-collection\f[R] arguments receive contiguous precedence in command\-line order.
+The command acquires the native layout and prints the catalog identity, collection revision identities, and effective and shadowed candidates.
+.PP
+The output is diagnostic text.
+It is not a durable catalog record, resolver protocol, or package\-manager configuration format.
+.SH OPTIONS
+.TP
+\f[CR]\-\-collection NAME=ROOT\f[R]
+Add one explicit collection.
+Repetition order defines precedence from zero.
+.TP
+\f[CR]\-\-external\-revision NAME=REVISION\f[R]
+Attach diagnostic revision provenance to one configured collection.
+.TP
+\f[CR]\-\-max\-document\-bytes N\f[R]
+Set a positive canonical decimal byte ceiling for each YAML document.
+The default is 1048576.
+.TP
+\f[CR]\-\-version\f[R]
+Print the program version.
+.TP
+\f[CR]\-\-help\f[R]
+Print usage.
+.SH EXIT STATUS
+Zero indicates a successfully sealed catalog.
+Non\-zero indicates option, filesystem, YAML, source\-authority, or catalog\-authority failure.
+.SH SEE ALSO
+\f[CR]pkgcatalog_acquire(3)\f[R], \f[CR]pkgcatalog_collection_layout(5)\f[R], \f[CR]libpkgcatalog(3)\f[R]
