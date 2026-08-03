@@ -10,7 +10,7 @@ configure_file(
 pkgcatalog_scan = executable(
   'pkgcatalog-scan',
   'pkgcatalog_scan.cpp',
-  dependencies: libpkgcatalog_acquire_dep,
+  dependencies: [libpkgcatalog_acquire_dep, libpkgsource_yaml_dep],
   install: true,
   install_dir: get_option('bindir'),
 )
