@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Alexandr Savca
+# SPDX-License-Identifier: GPL-3.0-or-later
+option(
+  'link_mode',
+  type: 'combo',
+  choices: ['shared', 'static'],
+  value: 'shared',
+  description: 'How libpkgcatalog-acquire links against dependencies',
+)
+option(
+  'tests',
+  type: 'feature',
+  value: 'enabled',
+  description: 'Build and run the acquisition test suite',
+)
+option(
+  'man_pages',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build manual pages with scdoc',
+)
+option(
+  'scan_tool',
+  type: 'feature',
+  value: 'enabled',
+  description: 'Build the pkgcatalog-scan reference frontend',
+)
