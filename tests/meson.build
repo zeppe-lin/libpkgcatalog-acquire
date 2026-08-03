@@ -1,10 +1,12 @@
 # SPDX-FileCopyrightText: 2026 Alexandr Savca
 # SPDX-License-Identifier: GPL-3.0-or-later
 if get_option('tests').enabled()
+  test_cpp_args = ['-UNDEBUG']
   integration_test = executable(
     'acquire-integration-test',
     'integration/acquire_test.cpp',
     dependencies: libpkgcatalog_acquire_dep,
+    cpp_args: test_cpp_args,
     install: false,
   )
   test('acquire-integration', integration_test)
@@ -18,6 +20,7 @@ if get_option('tests').enabled()
       test_spec[0] + '-test',
       test_spec[1],
       dependencies: libpkgcatalog_acquire_dep,
+      cpp_args: test_cpp_args,
       install: false,
     )
     test(test_spec[0], public_test)

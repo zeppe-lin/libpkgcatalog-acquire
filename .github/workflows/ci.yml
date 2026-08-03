@@ -43,6 +43,12 @@ jobs:
             cxx: clang++
             mode: static
             html_docs: disabled
+          - name: GCC release
+            cc: gcc
+            cxx: g++
+            mode: shared
+            html_docs: disabled
+            buildtype: release
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
@@ -98,6 +104,7 @@ jobs:
           common=(
             --prefix="$prefix"
             --libdir=lib
+            --buildtype=${{ matrix.buildtype || 'debug' }}
             -Ddefault_library=${{ matrix.mode }}
             -Dlink_mode=${{ matrix.mode }}
             -Dtests=disabled
@@ -132,6 +139,7 @@ jobs:
           meson setup build \
             --prefix="$PREFIX" \
             --libdir=lib \
+            --buildtype=${{ matrix.buildtype || 'debug' }} \
             -Ddefault_library=${{ matrix.mode }} \
             -Dlink_mode=${{ matrix.mode }} \
             -Dtests=enabled \

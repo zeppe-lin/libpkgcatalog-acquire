@@ -13,6 +13,10 @@ require "$root/HISTORY.md" '## 3.0.0'
 require "$root/Doxyfile" 'PROJECT_NUMBER         = 3.0.0'
 require "$root/README.md" '`libpkgcatalog-acquire.so.3`'
 require "$root/docs/history/catalog-2.1-extraction.md" '# Extraction from libpkgcatalog 2.1'
+require "$root/tests/meson.build" "test_cpp_args = ['-UNDEBUG']"
+require "$root/tests/meson.build" 'cpp_args: test_cpp_args'
+require "$root/.github/workflows/ci.yml" 'name: GCC release'
+require "$root/.github/workflows/ci.yml" '--buildtype=${{ matrix.buildtype'
 ! find "$root" -path "$root/.git" -prune -o -type f \
   \( -name '*.scd' -o -name 'meson_options.txt' -o -name 'CHANGELOG.md' \) \
   -print | grep . >/dev/null || fail 'retired repository authority remains'
