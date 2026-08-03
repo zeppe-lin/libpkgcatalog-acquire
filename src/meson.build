@@ -7,9 +7,11 @@ libpkgcatalog_acquire = library(
   'acquire.cpp',
   include_directories: public_inc,
   dependencies: [libpkgcatalog_dep, libpkgsource_yaml_dep],
+  cpp_args: visibility_cpp_args + ['-DPKGCATALOG_ACQUIRE_BUILDING_LIBRARY'],
+  gnu_symbol_visibility: 'hidden',
   install: true,
   version: meson.project_version(),
-  soversion: '2',
+  soversion: '3',
 )
 
 libpkgcatalog_acquire_dep = declare_dependency(
@@ -21,6 +23,7 @@ meson.override_dependency('libpkgcatalog-acquire', libpkgcatalog_acquire_dep)
 
 install_headers(
   '../include/libpkgcatalog-acquire/libpkgcatalog-acquire.h',
+  '../include/libpkgcatalog-acquire/export.h',
   '../include/libpkgcatalog-acquire/acquire.h',
   subdir: 'libpkgcatalog-acquire',
 )

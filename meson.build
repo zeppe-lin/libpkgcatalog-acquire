@@ -3,7 +3,7 @@
 project(
   'libpkgcatalog-acquire',
   'cpp',
-  version: '2.1.0',
+  version: '3.0.0',
   license: 'GPL-3.0-or-later',
   meson_version: '>=1.2.0',
   default_options: [
@@ -25,16 +25,22 @@ endif
 
 libpkgcatalog_dep = dependency(
   'libpkgcatalog',
-  version: '>=2.1.0',
+  version: '>=3.0.0',
   required: true,
   static: want_static,
 )
 libpkgsource_yaml_dep = dependency(
   'libpkgsource-yaml',
-  version: '>=2.1.0',
+  version: '>=1.0.0',
   required: true,
   static: want_static,
 )
+cpp = meson.get_compiler('cpp')
+visibility_cpp_args = []
+if cpp.has_argument('-fvisibility-inlines-hidden')
+  visibility_cpp_args += ['-fvisibility-inlines-hidden']
+endif
+
 pkgconf = import('pkgconfig')
 
 subdir('src')

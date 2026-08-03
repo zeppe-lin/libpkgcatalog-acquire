@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iterator>
 #include <limits>
 #include <set>
 #include <system_error>
@@ -123,6 +124,15 @@ std::string read_document(const std::filesystem::path& path,
   return bytes;
 }
 
+pkgsource::yaml::parse_limits parser_limits(const limits& resource_limits)
+{
+  pkgsource::yaml::parse_limits result;
+  result.maximum_document_bytes = static_cast<std::size_t>(
+      std::min<std::uint64_t>(resource_limits.max_document_bytes(),
+                              std::numeric_limits<std::size_t>::max()));
+  return result;
+}
+
 bool hidden_name(const std::filesystem::path& path)
 {
   const std::string name = path.filename().string();
@@ -231,6 +241,7 @@ error::error(error_code code, std::filesystem::path path, std::string message)
       path_(std::move(path))
 {
 }
+error::~error() = default;
 error_code error::code() const noexcept { return code_; }
 const std::filesystem::path& error::path() const noexcept { return path_; }
 
@@ -303,13 +314,14 @@ catalog_snapshot acquire_catalog(
     const std::filesystem::path document = collection.root / "profiles.yml";
     if (!exists_without_error(document))
       continue;
-    pkgsource::yaml_adapter::parsed_profile_document parsed =
-        pkgsource::yaml_adapter::parse_profiles_yaml_v1(
+    std::vector<pkgsource::profile_declaration> parsed =
+        pkgsource::yaml::parse_profiles_yaml(
             read_document(document, resource_limits),
-            pkgsource::source_origin(path_text(document)));
+            pkgsource::source_origin(path_text(document)),
+            parser_limits(resource_limits));
     profile_declarations.insert(profile_declarations.end(),
-                                parsed.declarations().begin(),
-                                parsed.declarations().end());
+                                std::make_move_iterator(parsed.begin()),
+                                std::make_move_iterator(parsed.end()));
   }
   pkgsource::profile_catalog profiles =
       pkgsource::profile_catalog::seal(std::move(profile_declarations));
@@ -321,9 +333,13 @@ catalog_snapshot acquire_catalog(
     for (const std::filesystem::path& package_directory :
          package_directories(collection.root)) {
       const std::filesystem::path recipe = package_directory / "recipe.yml";
-      sources.push_back(pkgsource::yaml_adapter::seal_recipe_yaml_v1(
-          read_document(recipe, resource_limits),
-          pkgsource::source_origin(path_text(recipe)), profiles));
+      pkgsource::source_origin origin(path_text(recipe));
+      pkgsource::recipe_declaration declaration =
+          pkgsource::yaml::parse_recipe_yaml(
+              read_document(recipe, resource_limits), origin,
+              parser_limits(resource_limits));
+      sources.push_back(pkgsource::seal_source(
+          std::move(origin), std::move(declaration), profiles));
     }
     collection_provenance provenance(
         path_text(collection.root),

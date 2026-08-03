@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include <libpkgcatalog-acquire/export.h>
+
 #include <cstdint>
 #include <filesystem>
 #include <optional>
@@ -27,12 +29,13 @@ enum class error_code {
   document_too_large,
   document_read_failed,
 };
-[[nodiscard]] std::string_view to_string(error_code value) noexcept;
+[[nodiscard]] PKGCATALOG_ACQUIRE_API std::string_view to_string(error_code value) noexcept;
 
 /*! \brief Filesystem acquisition failure with the exact observed path. */
-class error final : public std::runtime_error {
+class PKGCATALOG_ACQUIRE_API error final : public std::runtime_error {
 public:
   error(error_code code, std::filesystem::path path, std::string message);
+  ~error() override;
   [[nodiscard]] error_code code() const noexcept;
   [[nodiscard]] const std::filesystem::path& path() const noexcept;
 private:
@@ -41,7 +44,7 @@ private:
 };
 
 /*! \brief One explicitly configured collection root. */
-class collection_specification final {
+class PKGCATALOG_ACQUIRE_API collection_specification final {
 public:
   collection_specification(
       std::uint32_t precedence,
@@ -65,7 +68,7 @@ private:
 };
 
 /*! \brief Explicit resource limits for acquisition document reads. */
-class limits final {
+class PKGCATALOG_ACQUIRE_API limits final {
 public:
   explicit limits(std::uint64_t max_document_bytes = 1024U * 1024U);
   [[nodiscard]] std::uint64_t max_document_bytes() const noexcept;
@@ -74,7 +77,7 @@ private:
 };
 
 /*! \brief Acquire, parse, seal, and combine explicit native collections. */
-[[nodiscard]] catalog_snapshot acquire_catalog(
+[[nodiscard]] PKGCATALOG_ACQUIRE_API catalog_snapshot acquire_catalog(
     std::vector<collection_specification> collections,
     limits resource_limits = limits());
 
