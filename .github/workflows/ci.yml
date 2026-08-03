@@ -1,0 +1,309 @@
+# SPDX-FileCopyrightText: 2026 Alexandr Savca
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC shared
+            cc: gcc
+            cxx: g++
+            mode: shared
+            html_docs: enabled
+          - name: GCC static
+            cc: gcc
+            cxx: g++
+            mode: static
+            html_docs: disabled
+          - name: Clang shared
+            cc: clang
+            cxx: clang++
+            mode: shared
+            html_docs: disabled
+          - name: Clang static
+            cc: clang
+            cxx: clang++
+            mode: static
+            html_docs: disabled
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - name: Check out libpkgcatalog-acquire
+        uses: actions/checkout@v4
+
+      - name: Check out libpkgsource 3.0.0
+        uses: actions/checkout@v4
+        with:
+          repository: zeppe-lin/libpkgsource
+          ref: v3.0.0
+          path: dependencies/libpkgsource
+
+      - name: Check out libpkgsource-yaml 1.0.0
+        uses: actions/checkout@v4
+        with:
+          repository: zeppe-lin/libpkgsource-yaml
+          ref: v1.0.0
+          path: dependencies/libpkgsource-yaml
+
+      - name: Check out libpkgcatalog 3.0.0
+        uses: actions/checkout@v4
+        with:
+          repository: zeppe-lin/libpkgcatalog
+          ref: v3.0.0
+          path: dependencies/libpkgcatalog
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            binutils \
+            clang \
+            clang-format-17 \
+            doxygen \
+            libssl-dev \
+            libyaml-dev \
+            mandoc \
+            ninja-build \
+            pandoc \
+            pkg-config \
+            python3-venv
+          python3 -m venv "$RUNNER_TEMP/meson-venv"
+          "$RUNNER_TEMP/meson-venv/bin/pip" install 'meson==1.10.2'
+          echo "$RUNNER_TEMP/meson-venv/bin" >> "$GITHUB_PATH"
+
+      - name: Build and install authorities and syntax adapter
+        shell: bash
+        run: |
+          set -euo pipefail
+          prefix="$RUNNER_TEMP/prefix"
+          common=(
+            --prefix="$prefix"
+            --libdir=lib
+            -Ddefault_library=${{ matrix.mode }}
+            -Dlink_mode=${{ matrix.mode }}
+            -Dtests=disabled
+            -Dman_pages=disabled
+            -Dhtml_docs=disabled
+            -Dwerror=true
+          )
+
+          meson setup dependencies/libpkgsource/build dependencies/libpkgsource "${common[@]}"
+          meson compile -C dependencies/libpkgsource/build
+          meson install -C dependencies/libpkgsource/build
+
+          export PKG_CONFIG_PATH="$prefix/lib/pkgconfig"
+          export LD_LIBRARY_PATH="$prefix/lib"
+
+          meson setup dependencies/libpkgcatalog/build dependencies/libpkgcatalog \
+            "${common[@]}" -Dsha256_provider=openssl
+          meson compile -C dependencies/libpkgcatalog/build
+          meson install -C dependencies/libpkgcatalog/build
+
+          meson setup dependencies/libpkgsource-yaml/build dependencies/libpkgsource-yaml \
+            "${common[@]}"
+          meson compile -C dependencies/libpkgsource-yaml/build
+          meson install -C dependencies/libpkgsource-yaml/build
+
+          echo "PREFIX=$prefix" >> "$GITHUB_ENV"
+          echo "PKG_CONFIG_PATH=$prefix/lib/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$prefix/lib" >> "$GITHUB_ENV"
+
+      - name: Configure, build, and test
+        run: |
+          meson setup build \
+            --prefix="$PREFIX" \
+            --libdir=lib \
+            -Ddefault_library=${{ matrix.mode }} \
+            -Dlink_mode=${{ matrix.mode }} \
+            -Dtests=enabled \
+            -Dman_pages=enabled \
+            -Dhtml_docs=${{ matrix.html_docs }} \
+            -Dscan_tool=enabled \
+            -Dwerror=true
+          meson compile -C build
+          meson test -C build --print-errorlogs
+
+      - name: Qualify public API documentation
+        if: matrix.name == 'GCC shared'
+        run: doxygen Doxyfile
+
+      - name: Qualify manuals
+        run: |
+          find build/docs/man -type f \
+            \( -name '*.1' -o -name '*.3' -o -name '*.5' \) \
+            -exec mandoc -Tlint {} +
+
+      - name: Qualify staged documentation install
+        if: matrix.name == 'GCC shared'
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage="$RUNNER_TEMP/stage"
+          rm -rf "$stage"
+          meson install -C build --destdir "$stage"
+          tests/contracts/check_installed_docs.sh "$stage$PREFIX"
+          tests/contracts/check_installed_html_docs.sh "$stage$PREFIX" 3.0.0
+
+      - name: Install
+        run: meson install -C build
+
+      - name: Qualify installed consumer, scanner, and metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          flags=()
+          if [[ '${{ matrix.mode }}' == static ]]; then
+            flags+=(--static)
+          fi
+          "$CXX" -std=c++17 -Wall -Wextra -Wpedantic -Werror \
+            tests/public/umbrella_header_test.cpp \
+            $(pkg-config "${flags[@]}" --cflags --libs libpkgcatalog-acquire) \
+            -o installed-consumer
+          ./installed-consumer
+          test "$(pkg-config --modversion libpkgcatalog-acquire)" = 3.0.0
+          tests/acquire/scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 3.0.0
+
+      - name: Audit shared dependency boundary
+        if: matrix.mode == 'shared'
+        shell: bash
+        run: |
+          set -euo pipefail
+          library=$(find build -type f -name 'libpkgcatalog-acquire.so.*' \
+            ! -type l -print -quit)
+          readelf -d "$library" | tee acquire.dynamic
+          grep -F 'Library soname: [libpkgcatalog-acquire.so.3]' acquire.dynamic
+          grep -F 'Shared library: [libpkgcatalog.so.3]' acquire.dynamic
+          grep -F 'Shared library: [libpkgsource-yaml.so.1]' acquire.dynamic
+          grep -F 'Shared library: [libpkgsource.so.3]' acquire.dynamic
+          ! grep -E 'libyaml|libcrypto|libpkgcatalog-codec|libpkgsource-codec|libpkgplan|libpkgstate' \
+            acquire.dynamic
+
+  sanitizers:
+    name: ${{ matrix.name }} sanitizers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            cc: gcc
+            cxx: g++
+          - name: Clang
+            cc: clang
+            cxx: clang++
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      ASAN_OPTIONS: halt_on_error=1:abort_on_error=1:detect_leaks=1
+      UBSAN_OPTIONS: halt_on_error=1:abort_on_error=1:print_stacktrace=1
+    steps:
+      - name: Check out libpkgcatalog-acquire
+        uses: actions/checkout@v4
+
+      - name: Check out libpkgsource 3.0.0
+        uses: actions/checkout@v4
+        with:
+          repository: zeppe-lin/libpkgsource
+          ref: v3.0.0
+          path: dependencies/libpkgsource
+
+      - name: Check out libpkgsource-yaml 1.0.0
+        uses: actions/checkout@v4
+        with:
+          repository: zeppe-lin/libpkgsource-yaml
+          ref: v1.0.0
+          path: dependencies/libpkgsource-yaml
+
+      - name: Check out libpkgcatalog 3.0.0
+        uses: actions/checkout@v4
+        with:
+          repository: zeppe-lin/libpkgcatalog
+          ref: v3.0.0
+          path: dependencies/libpkgcatalog
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            clang \
+            libssl-dev \
+            libyaml-dev \
+            ninja-build \
+            pkg-config \
+            python3-venv
+          python3 -m venv "$RUNNER_TEMP/meson-venv"
+          "$RUNNER_TEMP/meson-venv/bin/pip" install 'meson==1.10.2'
+          echo "$RUNNER_TEMP/meson-venv/bin" >> "$GITHUB_PATH"
+
+      - name: Build sanitized dependency chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          prefix="$RUNNER_TEMP/prefix"
+          common=(
+            --prefix="$prefix"
+            --libdir=lib
+            -Ddefault_library=shared
+            -Dlink_mode=shared
+            -Dtests=disabled
+            -Dman_pages=disabled
+            -Dhtml_docs=disabled
+            -Db_sanitize=address,undefined
+            -Db_lundef=false
+            -Dwerror=true
+          )
+
+          meson setup dependencies/libpkgsource/build dependencies/libpkgsource "${common[@]}"
+          meson compile -C dependencies/libpkgsource/build
+          meson install -C dependencies/libpkgsource/build
+
+          export PKG_CONFIG_PATH="$prefix/lib/pkgconfig"
+          export LD_LIBRARY_PATH="$prefix/lib"
+
+          meson setup dependencies/libpkgcatalog/build dependencies/libpkgcatalog \
+            "${common[@]}" -Dsha256_provider=openssl
+          meson compile -C dependencies/libpkgcatalog/build
+          meson install -C dependencies/libpkgcatalog/build
+
+          meson setup dependencies/libpkgsource-yaml/build dependencies/libpkgsource-yaml \
+            "${common[@]}"
+          meson compile -C dependencies/libpkgsource-yaml/build
+          meson install -C dependencies/libpkgsource-yaml/build
+
+          echo "PKG_CONFIG_PATH=$prefix/lib/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$prefix/lib" >> "$GITHUB_ENV"
+
+      - name: Configure, build, and test
+        run: |
+          meson setup build \
+            -Ddefault_library=shared \
+            -Dlink_mode=shared \
+            -Dtests=enabled \
+            -Dman_pages=disabled \
+            -Dhtml_docs=disabled \
+            -Dscan_tool=enabled \
+            -Db_sanitize=address,undefined \
+            -Db_lundef=false \
+            -Dwerror=true
+          meson compile -C build
+          meson test -C build --print-errorlogs
