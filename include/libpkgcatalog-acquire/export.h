@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Alexandr Savca
 // SPDX-License-Identifier: GPL-3.0-or-later
+
+/*! \file export.h
+ *  \brief Shared-library visibility declarations for libpkgcatalog-acquire.
+ */
 #pragma once
 
 #if defined(_WIN32) || defined(__CYGWIN__)

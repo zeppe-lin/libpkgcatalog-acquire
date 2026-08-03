@@ -6,6 +6,5 @@
  */
 #pragma once
 
-#include <libpkgcatalog-acquire/export.h>
-
 #include <libpkgcatalog-acquire/acquire.h>
+#include <libpkgcatalog-acquire/export.h>
