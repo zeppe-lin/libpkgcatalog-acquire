@@ -3,12 +3,13 @@
 #pragma once
 
 #include <cassert>
-#include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <libpkgcatalog-acquire/acquire.h>
 
@@ -18,11 +19,15 @@ class temporary_tree final {
 public:
   temporary_tree()
   {
-    const auto stamp =
-        std::chrono::steady_clock::now().time_since_epoch().count();
-    root_ = std::filesystem::temp_directory_path() /
-            ("libpkgcatalog-acquire-" + std::to_string(stamp));
-    std::filesystem::create_directories(root_);
+    std::string pattern =
+        (std::filesystem::temp_directory_path() /
+         "libpkgcatalog-acquire-XXXXXX")
+            .string();
+    std::vector<char> buffer(pattern.begin(), pattern.end());
+    buffer.push_back('\0');
+    char* created = ::mkdtemp(buffer.data());
+    assert(created != nullptr);
+    root_ = created;
   }
 
   ~temporary_tree()

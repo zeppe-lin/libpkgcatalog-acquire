@@ -1,7 +1,7 @@
 # Native collection layout, version 1
 
 Version one defines the filesystem observation protocol accepted by
-`libpkgcatalog-acquire 3.0.0` and retained by 3.0.1. It is not catalog
+`libpkgcatalog-acquire 3.0.0` and retained by 3.0.1 and 3.0.2. It is not catalog
 authority and does not define package identity.
 
 ## Layout

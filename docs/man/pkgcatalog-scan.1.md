@@ -1,4 +1,4 @@
-% PKGCATALOG-SCAN(1) libpkgcatalog-acquire 3.0.1 | libpkgcatalog-acquire
+% PKGCATALOG-SCAN(1) libpkgcatalog-acquire 3.0.2 | libpkgcatalog-acquire
 
 # NAME
 

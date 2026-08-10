@@ -1,5 +1,15 @@
 # Project history
 
+## 3.0.2
+
+Parallel-test fixture isolation repair.
+
+- Replaced timestamp-derived temporary collection roots with atomic `mkdtemp()`
+  allocation so independently running Meson tests cannot share and mutate the
+  same fixture tree.
+- Kept collection and recipe symbolic-link refusal unchanged; the observed
+  failure was test-fixture cross-talk, not an acquisition-policy defect.
+
 ## 3.0.1
 
 Testing-foundation and acquisition-boundary hardening.

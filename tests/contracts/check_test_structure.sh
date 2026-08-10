@@ -18,3 +18,7 @@ grep -F 'tests/installed/consumer.cpp' "$root/.github/workflows/ci.yml" >/dev/nu
   fail 'installed consumer is not compiled by CI'
 grep -F 'pkgcatalog::acquire::acquire_catalog' "$root/tests/installed/consumer.cpp" >/dev/null ||
   fail 'installed consumer does not call the acquisition API'
+grep -F '::mkdtemp(buffer.data())' "$root/tests/support/acquisition_fixture.h" >/dev/null ||
+  fail 'temporary-tree fixture is not allocated atomically'
+! grep -F 'steady_clock' "$root/tests/support/acquisition_fixture.h" >/dev/null ||
+  fail 'timestamp-derived temporary-tree allocation returned'
