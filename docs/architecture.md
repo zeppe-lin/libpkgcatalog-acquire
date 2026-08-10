@@ -58,7 +58,8 @@ src/acquire.cpp                 filesystem observation and two-pass handoff
 tools/pkgcatalog_scan.cpp       reference client
 abi/                            reviewed ELF export manifest
 docs/protocols/                 layout protocol authority
-tests/                          behavior, integration, public, and contracts
+tests/                          unit, integration, mechanism, CLI, header,
+                                installed, support, contracts
 ```
 
 ## Failure ownership

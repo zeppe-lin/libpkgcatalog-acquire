@@ -4,11 +4,14 @@
 
 `acquire_catalog()` requires at least one explicit specification. Specifications
 are sorted by their numeric precedence and must then occupy every position from
-zero. Canonical collection names and normalized absolute roots must be unique.
+zero. Canonical collection names and normalized absolute roots must be unique. Optional
+external revision provenance must be non-empty and line-safe, including no
+embedded NUL byte.
 
 Each root is lexically normalized and compared with its canonical path. A root
 containing a symbolic-link component, naming a symbolic link, or not naming a
-directory is refused.
+directory is refused. Directory-open and iteration failures are translated into
+the adapter filesystem failure domain.
 
 ## Pass one: global profiles
 

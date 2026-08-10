@@ -172,36 +172,38 @@ package_directories(const std::filesystem::path& root)
   }
 
   std::vector<std::filesystem::path> result;
-  for (const std::filesystem::directory_entry& entry : iterator) {
-    const std::filesystem::path path = entry.path();
+  const std::filesystem::directory_iterator end;
+  while (iterator != end) {
+    const std::filesystem::path path = iterator->path();
     if (!line_safe(path_text(path))) {
       fail(error_code::unsupported_entry,
            path,
            "collection entry path is not line-safe");
     }
-    if (hidden_name(path)) {
-      continue;
-    }
-    const std::filesystem::file_status status = status_of(path);
-    if (std::filesystem::is_symlink(status)) {
-      fail(error_code::unsupported_entry,
-           path,
-           "collection entries must not be symbolic links");
-    }
-    if (std::filesystem::is_directory(status)) {
-      const std::filesystem::path recipe = path / "recipe.yml";
-      if (!exists_without_error(recipe)) {
+    if (!hidden_name(path)) {
+      const std::filesystem::file_status status = status_of(path);
+      if (std::filesystem::is_symlink(status)) {
         fail(error_code::unsupported_entry,
              path,
-             "non-hidden package directory has no recipe.yml");
+             "collection entries must not be symbolic links");
       }
-      result.push_back(path);
-      continue;
+      if (std::filesystem::is_directory(status)) {
+        const std::filesystem::path recipe = path / "recipe.yml";
+        if (!exists_without_error(recipe)) {
+          fail(error_code::unsupported_entry,
+               path,
+               "non-hidden package directory has no recipe.yml");
+        }
+        result.push_back(path);
+      } else if (!std::filesystem::is_regular_file(status)) {
+        fail(error_code::unsupported_entry,
+             path,
+             "unsupported non-hidden collection entry");
+      }
     }
-    if (!std::filesystem::is_regular_file(status)) {
-      fail(error_code::unsupported_entry,
-           path,
-           "unsupported non-hidden collection entry");
+    iterator.increment(ec);
+    if (ec) {
+      fail(error_code::filesystem_failure, root, ec.message());
     }
   }
   std::sort(

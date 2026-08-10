@@ -16,6 +16,7 @@ done
 for token in \
   'std::filesystem::canonical' \
   'std::filesystem::symlink_status' \
+  'iterator.increment(ec)' \
   'document changed while it was read' \
   'collection precedence must be contiguous from zero' \
   'duplicate normalized collection root'; do

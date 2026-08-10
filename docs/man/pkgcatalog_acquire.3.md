@@ -1,4 +1,4 @@
-% PKGCATALOG_ACQUIRE(3) libpkgcatalog-acquire 3.0.0 | libpkgcatalog-acquire
+% PKGCATALOG_ACQUIRE(3) libpkgcatalog-acquire 3.0.1 | libpkgcatalog-acquire
 
 # NAME
 
@@ -27,7 +27,8 @@ package directories, parses each `recipe.yml`, seals source snapshots against
 the global profiles, seals collection revisions, and invokes catalog sealing.
 
 Collection names, roots, precedence, external revision labels, and declaration
-provenance are supplied explicitly. The library does not discover collections
+provenance are supplied explicitly. External revision labels are optional
+diagnostic provenance and must be non-empty and line-safe when present. The library does not discover collections
 or read package-manager configuration.
 
 # LIMITS

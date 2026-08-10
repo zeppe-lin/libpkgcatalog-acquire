@@ -1,6 +1,6 @@
 .\" Generated from docs/man/pkgcatalog_acquire.3.md; do not edit.
 .\"
-.TH "PKGCATALOG_ACQUIRE" "3" "" "libpkgcatalog\-acquire 3.0.0" "libpkgcatalog\-acquire"
+.TH "PKGCATALOG_ACQUIRE" "3" "" "libpkgcatalog\-acquire 3.0.1" "libpkgcatalog\-acquire"
 .SH NAME
 pkgcatalog_acquire \- acquire explicit native collections into catalog authority
 .SH SYNOPSIS
@@ -21,6 +21,7 @@ The adapter first reads every optional root \f[CR]profiles.yml\f[R], parses all 
 It then discovers immediate visible package directories, parses each \f[CR]recipe.yml\f[R], seals source snapshots against the global profiles, seals collection revisions, and invokes catalog sealing.
 .PP
 Collection names, roots, precedence, external revision labels, and declaration provenance are supplied explicitly.
+External revision labels are optional diagnostic provenance and must be non\-empty and line\-safe when present.
 The library does not discover collections or read package\-manager configuration.
 .SH LIMITS
 \f[CR]pkgcatalog::acquire::limits\f[R] sets the positive maximum number of bytes read for each YAML document.

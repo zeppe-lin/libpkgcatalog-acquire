@@ -2,28 +2,51 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 if get_option('tests').enabled()
   test_cpp_args = ['-UNDEBUG']
-  integration_test = executable(
-    'acquire-integration-test',
-    'integration/acquire_test.cpp',
+  test_inc = include_directories('.')
+
+  unit_test = executable(
+    'model-unit-test',
+    'unit/model_test.cpp',
+    include_directories: test_inc,
     dependencies: libpkgcatalog_acquire_dep,
     cpp_args: test_cpp_args,
     install: false,
   )
-  test('acquire-integration', integration_test)
+  test('model-unit', unit_test, suite: 'unit')
+
+  integration_test = executable(
+    'acquire-integration-test',
+    'integration/acquire_test.cpp',
+    include_directories: test_inc,
+    dependencies: libpkgcatalog_acquire_dep,
+    cpp_args: test_cpp_args,
+    install: false,
+  )
+  test('acquire-integration', integration_test, suite: 'integration')
+
+  mechanism_test = executable(
+    'filesystem-mechanism-test',
+    'mechanism/filesystem_test.cpp',
+    include_directories: test_inc,
+    dependencies: libpkgcatalog_acquire_dep,
+    cpp_args: test_cpp_args,
+    install: false,
+  )
+  test('filesystem-mechanism', mechanism_test, suite: 'mechanism')
 
   foreach test_spec : [
-    ['public-umbrella', 'public/umbrella_header_test.cpp'],
-    ['public-acquire', 'public/acquire_header_test.cpp'],
-    ['public-export', 'public/export_header_test.cpp'],
+    ['header-umbrella', 'header/umbrella_header_test.cpp'],
+    ['header-acquire', 'header/acquire_header_test.cpp'],
+    ['header-export', 'header/export_header_test.cpp'],
   ]
-    public_test = executable(
+    header_test = executable(
       test_spec[0] + '-test',
       test_spec[1],
       dependencies: libpkgcatalog_acquire_dep,
       cpp_args: test_cpp_args,
       install: false,
     )
-    test(test_spec[0], public_test)
+    test(test_spec[0], header_test, suite: 'header')
   endforeach
 
   sh = find_program('sh')
@@ -38,6 +61,7 @@ if get_option('tests').enabled()
         libpkgcatalog_acquire.full_path(),
         meson.project_source_root() / 'abi/libpkgcatalog-acquire.exports',
       ],
+      suite: 'contracts',
     )
   endif
 
@@ -53,6 +77,7 @@ if get_option('tests').enabled()
     'manpage-source',
     'style-contract',
     'ci-contract',
+    'test-structure',
   ]
     test(
       contract,
@@ -61,6 +86,7 @@ if get_option('tests').enabled()
         join_paths(meson.current_source_dir(), 'contracts/check_' + contract.replace('-', '_') + '.sh'),
         meson.project_source_root(),
       ] + (contract == 'style-contract' ? [meson.project_build_root()] : []),
+      suite: 'contracts',
     )
   endforeach
 
@@ -74,6 +100,7 @@ if get_option('tests').enabled()
         meson.project_source_root(),
         pandoc.full_path(),
       ],
+      suite: 'contracts',
     )
   endif
 
@@ -85,6 +112,7 @@ if get_option('tests').enabled()
       meson.project_build_root(),
       meson.project_version(),
     ],
+    suite: 'contracts',
   )
 
   clang_format = find_program('clang-format-17', required: false)
@@ -97,6 +125,7 @@ if get_option('tests').enabled()
         clang_format.full_path(),
         meson.project_source_root(),
       ],
+      suite: 'contracts',
     )
   endif
 
@@ -105,10 +134,11 @@ if get_option('tests').enabled()
       'scan-tool',
       sh,
       args: [
-        join_paths(meson.current_source_dir(), 'acquire/scan_tool_test.sh'),
+        join_paths(meson.current_source_dir(), 'cli/scan_tool_test.sh'),
         pkgcatalog_scan.full_path(),
         meson.project_version(),
       ],
+      suite: 'cli',
     )
   endif
 endif

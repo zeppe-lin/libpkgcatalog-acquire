@@ -1,113 +1,22 @@
 // SPDX-FileCopyrightText: 2026 Alexandr Savca
 // SPDX-License-Identifier: GPL-3.0-or-later
+#include "support/acquisition_fixture.h"
+
 #include <libpkgsource/error.h>
 
 #include <cassert>
-#include <chrono>
 #include <filesystem>
-#include <fstream>
-#include <optional>
 #include <string>
-#include <vector>
 
 #include <libpkgcatalog-acquire/acquire.h>
 #include <libpkgcatalog/error.h>
 
 namespace {
 
-class temporary_tree final {
-public:
-  temporary_tree()
-  {
-    const auto stamp =
-        std::chrono::steady_clock::now().time_since_epoch().count();
-    root_ = std::filesystem::temp_directory_path() /
-            ("libpkgcatalog-acquire-" + std::to_string(stamp));
-    std::filesystem::create_directories(root_);
-  }
-  ~temporary_tree()
-  {
-    std::error_code ignored;
-    std::filesystem::remove_all(root_, ignored);
-  }
-  const std::filesystem::path& root() const noexcept
-  {
-    return root_;
-  }
-
-private:
-  std::filesystem::path root_;
-};
-
-void write(const std::filesystem::path& path, const std::string& bytes)
-{
-  std::filesystem::create_directories(path.parent_path());
-  std::ofstream stream(path, std::ios::binary);
-  assert(stream);
-  stream << bytes;
-  assert(stream.good());
-}
-
-std::string recipe(const std::string& name,
-                   const std::string& version,
-                   const std::string& build_requirement = {})
-{
-  return "format: zeppe-lin.recipe/1\n"
-         "package:\n"
-         "  name: " +
-         name +
-         "\n"
-         "  version: " +
-         version +
-         "\n"
-         "  release: 1\n"
-         "  summary: Native package\n"
-         "  licenses: [GPL-3.0-or-later]\n"
-         "requirements:\n" +
-         (build_requirement.empty()
-              ? std::string("  build: []\n")
-              : "  build:\n    - profile: \"" + build_requirement + "\"\n") +
-         "sources: []\n"
-         "build:\n"
-         "  language: posix-shell\n"
-         "  script: |\n"
-         "    true\n";
-}
-
-pkgsource::declaration_provenance provenance(std::size_t index)
-{
-  return pkgsource::declaration_provenance(
-      "catalog.conf",
-      "collections[" + std::to_string(index) + "]",
-      1,
-      static_cast<std::uint32_t>(index + 1));
-}
-
-pkgcatalog::acquire::collection_specification
-specification(std::uint32_t precedence,
-              const std::string& name,
-              const std::filesystem::path& root,
-              std::optional<std::string> revision = std::nullopt)
-{
-  return pkgcatalog::acquire::collection_specification(
-      precedence,
-      pkgcatalog::collection_reference(name),
-      root,
-      std::move(revision),
-      provenance(precedence));
-}
-
-template <class Function>
-void expect_acquire(pkgcatalog::acquire::error_code code, Function function)
-{
-  try {
-    function();
-  } catch (const pkgcatalog::acquire::error& value) {
-    assert(value.code() == code);
-    return;
-  }
-  assert(false);
-}
+using test_support::recipe;
+using test_support::specification;
+using test_support::temporary_tree;
+using test_support::write;
 
 template <class Function>
 void expect_source(pkgsource::error_code code, Function function)
@@ -197,37 +106,6 @@ void test_two_pass_acquisition()
          second.collections()[0].collection().revision_identity());
 }
 
-void test_request_and_layout_failures()
-{
-  temporary_tree tree;
-  populate_valid(tree.root());
-  expect_acquire(pkgcatalog::acquire::error_code::invalid_request, [&] {
-    (void)pkgcatalog::acquire::acquire_catalog({});
-  });
-  expect_acquire(pkgcatalog::acquire::error_code::invalid_request, [&] {
-    (void)pkgcatalog::acquire::acquire_catalog(
-        {specification(1, "core", tree.root() / "core")});
-  });
-  expect_acquire(pkgcatalog::acquire::error_code::invalid_request, [&] {
-    (void)pkgcatalog::acquire::acquire_catalog(
-        {specification(0, "core", tree.root() / "core"),
-         specification(1, "other", tree.root() / "core")});
-  });
-
-  std::filesystem::create_directories(tree.root() / "core" / "orphan");
-  expect_acquire(pkgcatalog::acquire::error_code::unsupported_entry, [&] {
-    (void)pkgcatalog::acquire::acquire_catalog(
-        {specification(0, "core", tree.root() / "core")});
-  });
-  std::filesystem::remove_all(tree.root() / "core" / "orphan");
-
-  expect_acquire(pkgcatalog::acquire::error_code::document_too_large, [&] {
-    (void)pkgcatalog::acquire::acquire_catalog(
-        {specification(0, "core", tree.root() / "core")},
-        pkgcatalog::acquire::limits(8));
-  });
-}
-
 void test_authority_failures()
 {
   temporary_tree tree;
@@ -257,33 +135,32 @@ void test_authority_failures()
   });
 }
 
-void test_symlink_rejection()
+void test_source_semantics_reach_catalog_identity()
 {
   temporary_tree tree;
   const auto root = tree.root() / "core";
-  write(root / "real.yml", recipe("alpha", "1.0"));
-  std::filesystem::create_directories(root / "alpha");
-  std::error_code ec;
-  std::filesystem::create_symlink(
-      root / "real.yml", root / "alpha" / "recipe.yml", ec);
-  if (!ec) {
-    expect_acquire(pkgcatalog::acquire::error_code::unsupported_entry, [&] {
-      (void)pkgcatalog::acquire::acquire_catalog(
-          {specification(0, "core", root)});
-    });
-  }
+  const auto document = root / "alpha" / "recipe.yml";
+  write(document, recipe("alpha", "1.0", {}, "true"));
 
-  const auto actual = tree.root() / "actual";
-  std::filesystem::create_directories(actual);
-  const auto linked = tree.root() / "linked";
-  ec.clear();
-  std::filesystem::create_directory_symlink(actual, linked, ec);
-  if (!ec) {
-    expect_acquire(pkgcatalog::acquire::error_code::invalid_root, [&] {
-      (void)pkgcatalog::acquire::acquire_catalog(
-          {specification(0, "linked", linked)});
-    });
-  }
+  const auto first = pkgcatalog::acquire::acquire_catalog(
+      {specification(0, "core", root, "diagnostic")});
+  const auto& first_candidate =
+      first.require(pkgsource::package_reference("alpha"));
+
+  write(document, recipe("alpha", "1.0", {}, "printf changed"));
+  const auto second = pkgcatalog::acquire::acquire_catalog(
+      {specification(0, "core", root, "diagnostic")});
+  const auto& second_candidate =
+      second.require(pkgsource::package_reference("alpha"));
+
+  assert(first_candidate.release().identity() ==
+         second_candidate.release().identity());
+  assert(first_candidate.source().identity() !=
+         second_candidate.source().identity());
+  assert(first_candidate.identity() != second_candidate.identity());
+  assert(first.collections()[0].collection().revision_identity() !=
+         second.collections()[0].collection().revision_identity());
+  assert(first.identity() != second.identity());
 }
 
 } // namespace
@@ -291,7 +168,6 @@ void test_symlink_rejection()
 int main()
 {
   test_two_pass_acquisition();
-  test_request_and_layout_failures();
   test_authority_failures();
-  test_symlink_rejection();
+  test_source_semantics_reach_catalog_identity();
 }

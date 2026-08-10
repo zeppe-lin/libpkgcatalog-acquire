@@ -22,7 +22,8 @@ collection_specification::collection_specification(
   if (external_revision_ &&
       (external_revision_->empty() ||
        external_revision_->find('\n') != std::string::npos ||
-       external_revision_->find('\r') != std::string::npos)) {
+       external_revision_->find('\r') != std::string::npos ||
+       external_revision_->find('\0') != std::string::npos)) {
     throw error(error_code::invalid_request,
                 root_,
                 "invalid external revision provenance");

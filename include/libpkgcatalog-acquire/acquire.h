@@ -26,7 +26,7 @@ enum class error_code {
   invalid_request,
   /*! A collection root is empty, non-canonical, linked, or not a directory. */
   invalid_root,
-  /*! Filesystem metadata inspection failed. */
+  /*! Filesystem observation or directory iteration failed. */
   filesystem_failure,
   /*! A visible collection entry violates the native layout contract. */
   unsupported_entry,
@@ -87,7 +87,8 @@ public:
    *  \param precedence Contiguous precedence position beginning at zero.
    *  \param name Canonical catalog collection reference.
    *  \param root Filesystem root to observe.
-   *  \param external_revision Optional diagnostic revision provenance.
+   *  \param external_revision Optional non-empty line-safe diagnostic revision
+   *         provenance.
    *  \param declaration Provenance of the configuration declaration.
    *  \throws error if the root or external revision is structurally invalid.
    */

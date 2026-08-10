@@ -1,5 +1,24 @@
 # Project history
 
+## 3.0.1
+
+Testing-foundation and acquisition-boundary hardening.
+
+- Rejected NUL-bearing external revision provenance at acquisition request
+  construction instead of leaking that refusal into catalog authority later.
+- Added an integration seam proving that recipe semantic changes with an
+  unchanged package release propagate through source, candidate, collection,
+  and catalog identities.
+- Made the staged installed consumer call `acquire_catalog()` so shared and
+  static pkg-config qualification exercises the real private YAML dependency
+  closure instead of header inclusion only.
+- Reorganized tests by unit, integration, filesystem mechanism, CLI, header,
+  installed-consumer, support, and contract ownership.
+- Qualified against corrected `libpkgcatalog 3.0.1` while retaining the public
+  compatibility floor at `libpkgcatalog >= 3.0.0`.
+- Corrected stale HTML publication documentation that still named version
+  1.0.0 and the nonexistent `manual/` output directory.
+
 ## 3.0.0
 
 First independent `libpkgcatalog-acquire` release.

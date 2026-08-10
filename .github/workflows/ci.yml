@@ -70,11 +70,11 @@ jobs:
           ref: v1.0.0
           path: dependencies/libpkgsource-yaml
 
-      - name: Check out libpkgcatalog 3.0.0
+      - name: Check out libpkgcatalog 3.0.1
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgcatalog
-          ref: v3.0.0
+          ref: v3.0.1
           path: dependencies/libpkgcatalog
 
       - name: Install build dependencies
@@ -169,7 +169,7 @@ jobs:
           rm -rf "$stage"
           meson install -C build --destdir "$stage"
           tests/contracts/check_installed_docs.sh "$stage$PREFIX"
-          tests/contracts/check_installed_html_docs.sh "$stage$PREFIX" 3.0.0
+          tests/contracts/check_installed_html_docs.sh "$stage$PREFIX" 3.0.1
 
       - name: Install
         run: meson install -C build
@@ -183,12 +183,12 @@ jobs:
             flags+=(--static)
           fi
           "$CXX" -std=c++17 -Wall -Wextra -Wpedantic -Werror \
-            tests/public/umbrella_header_test.cpp \
+            tests/installed/consumer.cpp \
             $(pkg-config "${flags[@]}" --cflags --libs libpkgcatalog-acquire) \
             -o installed-consumer
           ./installed-consumer
-          test "$(pkg-config --modversion libpkgcatalog-acquire)" = 3.0.0
-          tests/acquire/scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 3.0.0
+          test "$(pkg-config --modversion libpkgcatalog-acquire)" = 3.0.1
+          tests/cli/scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 3.0.1
 
       - name: Audit shared dependency boundary
         if: matrix.mode == 'shared'
@@ -242,11 +242,11 @@ jobs:
           ref: v1.0.0
           path: dependencies/libpkgsource-yaml
 
-      - name: Check out libpkgcatalog 3.0.0
+      - name: Check out libpkgcatalog 3.0.1
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgcatalog
-          ref: v3.0.0
+          ref: v3.0.1
           path: dependencies/libpkgcatalog
 
       - name: Install build dependencies
