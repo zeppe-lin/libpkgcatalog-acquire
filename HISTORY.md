@@ -9,6 +9,8 @@ Parallel-test fixture isolation repair.
   same fixture tree.
 - Kept collection and recipe symbolic-link refusal unchanged; the observed
   failure was test-fixture cross-talk, not an acquisition-policy defect.
+- Aligned installed HTML, pkg-config, and scanner CI qualification with the
+  3.0.2 project version so the release workflow tests the artifact it builds.
 
 ## 3.0.1
 

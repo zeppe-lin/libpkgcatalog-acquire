@@ -19,6 +19,19 @@ for token in \
   '-Db_sanitize=address,undefined'; do
   grep -F -- "$token" "$file" >/dev/null || fail "missing: $token"
 done
+for token in \
+  'tests/contracts/check_installed_html_docs.sh "$stage$PREFIX" 3.0.2' \
+  'test "$(pkg-config --modversion libpkgcatalog-acquire)" = 3.0.2' \
+  'tests/cli/scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 3.0.2'; do
+  grep -F -- "$token" "$file" >/dev/null ||
+    fail "installed release qualification drift: $token"
+done
+! grep -F 'check_installed_html_docs.sh "$stage$PREFIX" 3.0.1' "$file" >/dev/null ||
+  fail 'installed HTML qualification still expects libpkgcatalog-acquire 3.0.1'
+! grep -F 'pkg-config --modversion libpkgcatalog-acquire)" = 3.0.1' "$file" >/dev/null ||
+  fail 'installed pkg-config qualification still expects libpkgcatalog-acquire 3.0.1'
+! grep -F 'scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 3.0.1' "$file" >/dev/null ||
+  fail 'installed scanner qualification still expects libpkgcatalog-acquire 3.0.1'
 catalog_refs=$(awk '
   /repository: zeppe-lin\/libpkgcatalog$/ {
     getline

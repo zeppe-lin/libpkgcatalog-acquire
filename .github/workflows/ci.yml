@@ -169,7 +169,7 @@ jobs:
           rm -rf "$stage"
           meson install -C build --destdir "$stage"
           tests/contracts/check_installed_docs.sh "$stage$PREFIX"
-          tests/contracts/check_installed_html_docs.sh "$stage$PREFIX" 3.0.1
+          tests/contracts/check_installed_html_docs.sh "$stage$PREFIX" 3.0.2
 
       - name: Install
         run: meson install -C build
@@ -187,8 +187,8 @@ jobs:
             $(pkg-config "${flags[@]}" --cflags --libs libpkgcatalog-acquire) \
             -o installed-consumer
           ./installed-consumer
-          test "$(pkg-config --modversion libpkgcatalog-acquire)" = 3.0.1
-          tests/cli/scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 3.0.1
+          test "$(pkg-config --modversion libpkgcatalog-acquire)" = 3.0.2
+          tests/cli/scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 3.0.2
 
       - name: Audit shared dependency boundary
         if: matrix.mode == 'shared'
