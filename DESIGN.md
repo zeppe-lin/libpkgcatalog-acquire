@@ -1,4 +1,4 @@
-# Architecture
+# libpkgcatalog-acquire design
 
 ## Role
 

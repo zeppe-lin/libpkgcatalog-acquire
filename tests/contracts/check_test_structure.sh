@@ -22,3 +22,17 @@ grep -F '::mkdtemp(buffer.data())' "$root/tests/support/acquisition_fixture.h" >
   fail 'temporary-tree fixture is not allocated atomically'
 ! grep -F 'steady_clock' "$root/tests/support/acquisition_fixture.h" >/dev/null ||
   fail 'timestamp-derived temporary-tree allocation returned'
+
+
+meson=$root/tests/meson.build
+for contract in "$root"/tests/contracts/check_*.sh; do
+  [ -x "$contract" ] || fail "contract is not executable: ${contract#$root/}"
+  name=$(basename "$contract")
+  case $name in
+    check_installed_docs.sh | check_installed_html_docs.sh)
+      continue
+      ;;
+  esac
+  grep -F "$name" "$meson" >/dev/null ||
+    fail "shell contract is not registered in Meson: $name"
+done

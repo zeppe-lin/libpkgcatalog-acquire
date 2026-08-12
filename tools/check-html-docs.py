@@ -55,7 +55,7 @@ def main() -> int:
     required = [
         "index.html",
         "history.html",
-        "architecture.html",
+        "design.html",
         "acquisition.html",
         "integration.html",
         "abi.html",

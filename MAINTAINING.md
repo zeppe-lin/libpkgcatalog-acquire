@@ -19,7 +19,8 @@ roots, precedence, and external revision provenance remain caller supplied.
 
 ## Generated documentation
 
-Markdown under `docs/` is canonical. Regenerate committed roff with
+Root project documents and Markdown under `docs/` are canonical. Regenerate
+committed roff with
 `tools/update-man-pages.sh --write`. HTML is a versioned derived artifact built
 from canonical Markdown and installed public headers.
 

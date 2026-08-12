@@ -4,7 +4,7 @@
 set -eu
 root=$1
 fail(){ echo "architecture-contract: $*" >&2; exit 1; }
-for path in docs/architecture.md docs/acquisition.md docs/integration.md; do
+for path in DESIGN.md docs/acquisition.md docs/integration.md; do
   [ -s "$root/$path" ] || fail "missing $path"
 done
 for token in \
@@ -14,11 +14,11 @@ for token in \
   'libpkgcatalog' \
   'unverified edge' \
   'does not publish partially acquired state'; do
-  grep -R -F "$token" "$root/README.md" "$root/docs" >/dev/null || fail "missing: $token"
+  grep -R -F "$token" "$root/README.md" "$root/DESIGN.md" "$root/docs" >/dev/null || fail "missing: $token"
 done
 for forbidden in \
   'discovers enabled collections' \
   'runs Git repositories' \
   'serializes the catalog snapshot'; do
-  ! grep -R -F "$forbidden" "$root/README.md" "$root/docs" >/dev/null || fail "false authority claim: $forbidden"
+  ! grep -R -F "$forbidden" "$root/README.md" "$root/DESIGN.md" "$root/docs" >/dev/null || fail "false authority claim: $forbidden"
 done

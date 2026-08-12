@@ -1,4 +1,4 @@
-# Testing
+# Testing libpkgcatalog-acquire
 
 The suite separates request semantics, adapter composition, filesystem
 mechanism, reference-client behavior, installed surface, and repository proof.
@@ -25,5 +25,5 @@ metadata rather than in-tree dependency objects.
 
 Filesystem tests use temporary roots and vary one observation rule at a time:
 request continuity, duplicate roots or names, hidden entries, missing recipes,
-symlinks, document limits, global profiles, candidate shadowing, and owner
-refusals.
+symlinks, nonblocking special-file refusal, document limits, global profiles,
+candidate shadowing, and owner refusals.

@@ -66,26 +66,25 @@ if get_option('tests').enabled()
   endif
 
   foreach contract : [
-    'acquisition-contract',
-    'provider-boundary',
-    'architecture-contract',
-    'release-contract',
-    'documentation-contract',
-    'documentation-install-contract',
-    'doxygen-contract',
-    'html-docs-contract',
-    'manpage-source',
-    'style-contract',
-    'ci-contract',
-    'test-structure',
+    ['acquisition-contract', 'check_acquisition_contract.sh', [meson.project_source_root()]],
+    ['provider-boundary', 'check_provider_boundary.sh', [meson.project_source_root()]],
+    ['architecture-contract', 'check_architecture_contract.sh', [meson.project_source_root()]],
+    ['release-contract', 'check_release_contract.sh', [meson.project_source_root()]],
+    ['documentation-contract', 'check_documentation_contract.sh', [meson.project_source_root()]],
+    ['documentation-source', 'check_documentation_source.sh', [meson.project_source_root()]],
+    ['repository-contract', 'check_repository_contract.sh', [meson.project_source_root()]],
+    ['documentation-install-contract', 'check_documentation_install_contract.sh', [meson.project_source_root()]],
+    ['doxygen-contract', 'check_doxygen_contract.sh', [meson.project_source_root()]],
+    ['html-docs-contract', 'check_html_docs_contract.sh', [meson.project_source_root()]],
+    ['manpage-source', 'check_manpage_source.sh', [meson.project_source_root()]],
+    ['style-contract', 'check_style_contract.sh', [meson.project_source_root(), meson.project_build_root()]],
+    ['ci-contract', 'check_ci_contract.sh', [meson.project_source_root()]],
+    ['test-structure', 'check_test_structure.sh', [meson.project_source_root()]],
   ]
     test(
-      contract,
+      contract[0],
       sh,
-      args: [
-        join_paths(meson.current_source_dir(), 'contracts/check_' + contract.replace('-', '_') + '.sh'),
-        meson.project_source_root(),
-      ] + (contract == 'style-contract' ? [meson.project_build_root()] : []),
+      args: [join_paths(meson.current_source_dir(), 'contracts', contract[1])] + contract[2],
       suite: 'contracts',
     )
   endforeach

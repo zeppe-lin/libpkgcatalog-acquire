@@ -34,7 +34,8 @@ contents. Its text output is not a storage or resolver protocol.
 
 ## Read next
 
-- `docs/architecture.md` — owned boundary and construction pipeline.
+- `DESIGN.md` — owned boundary and construction pipeline.
+- `TESTING.md` — qualification topology and release proof.
 - `docs/acquisition.md` — exact observations, passes, and refusal points.
 - `docs/integration.md` — ecosystem placement and future audit procedure.
 - `docs/protocols/collection-layout-v1.md` — native layout protocol.

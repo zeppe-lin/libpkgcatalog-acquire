@@ -16,7 +16,7 @@ With `-Dhtml_docs=enabled`, the build produces:
 ```text
 build/docs/html/libpkgcatalog-acquire/3.0.2/
 ├── index.html
-├── architecture.html
+├── design.html
 ├── abi.html
 ├── protocols/
 ├── history/

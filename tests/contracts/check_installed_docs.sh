@@ -4,8 +4,8 @@
 set -eu
 prefix=$1 root=$1/share/doc/libpkgcatalog-acquire
 fail(){ echo "installed-docs: $*" >&2; exit 1; }
-for path in README.md HISTORY.md CONTRIBUTING.md MAINTAINING.md COPYING COPYRIGHT \
-  architecture.md acquisition.md integration.md abi.md testing.md code-style.md \
+for path in README.md DESIGN.md TESTING.md HISTORY.md CONTRIBUTING.md MAINTAINING.md COPYING COPYRIGHT \
+  acquisition.md integration.md abi.md code-style.md \
   manpage-markdown.md html.md protocols/collection-layout-v1.md \
   history/catalog-2.1-extraction.md man/pkgcatalog-scan.1.md \
   man/pkgcatalog_acquire.3.md man/pkgcatalog_collection_layout.5.md \

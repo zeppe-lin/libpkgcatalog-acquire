@@ -3,7 +3,12 @@
 #include "support/acquisition_fixture.h"
 
 #include <cassert>
+#include <csignal>
 #include <filesystem>
+
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include <libpkgcatalog-acquire/acquire.h>
 
@@ -24,6 +29,29 @@ void expect_acquire(pkgcatalog::acquire::error_code code, Function function)
     return;
   }
   assert(false);
+}
+
+template <class Function>
+void expect_fast_acquire(pkgcatalog::acquire::error_code code, Function function)
+{
+  const pid_t child = ::fork();
+  assert(child >= 0);
+  if (child == 0) {
+    ::alarm(2);
+    try {
+      function();
+    } catch (const pkgcatalog::acquire::error& value) {
+      ::_exit(value.code() == code ? 0 : 2);
+    } catch (...) {
+      ::_exit(3);
+    }
+    ::_exit(4);
+  }
+
+  int status = 0;
+  assert(::waitpid(child, &status, 0) == child);
+  assert(WIFEXITED(status));
+  assert(WEXITSTATUS(status) == 0);
 }
 
 void populate(const std::filesystem::path& root)
@@ -99,10 +127,34 @@ void test_symlink_refusal()
   }
 }
 
+void test_special_document_refusal_is_nonblocking()
+{
+  temporary_tree tree;
+
+  const auto profiles_root = tree.root() / "profiles";
+  std::filesystem::create_directories(profiles_root);
+  const auto profiles = profiles_root / "profiles.yml";
+  assert(::mkfifo(profiles.c_str(), 0600) == 0);
+  expect_fast_acquire(pkgcatalog::acquire::error_code::unsupported_entry, [&] {
+    (void)pkgcatalog::acquire::acquire_catalog(
+        {specification(0, "profiles", profiles_root)});
+  });
+
+  const auto recipe_root = tree.root() / "recipe";
+  std::filesystem::create_directories(recipe_root / "alpha");
+  const auto recipe_path = recipe_root / "alpha" / "recipe.yml";
+  assert(::mkfifo(recipe_path.c_str(), 0600) == 0);
+  expect_fast_acquire(pkgcatalog::acquire::error_code::unsupported_entry, [&] {
+    (void)pkgcatalog::acquire::acquire_catalog(
+        {specification(0, "recipe", recipe_root)});
+  });
+}
+
 } // namespace
 
 int main()
 {
   test_request_and_layout_refusal();
   test_symlink_refusal();
+  test_special_document_refusal_is_nonblocking();
 }

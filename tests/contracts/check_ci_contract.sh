@@ -9,8 +9,8 @@ for token in \
   'repository: zeppe-lin/libpkgsource' \
   'repository: zeppe-lin/libpkgsource-yaml' \
   'repository: zeppe-lin/libpkgcatalog' \
-  'ref: v3.0.0' \
-  'ref: v1.0.0' \
+  'ref: v3.0.1' \
+  'ref: v1.0.1' \
   'mode: shared' \
   'mode: static' \
   'tests/installed/consumer.cpp' \
@@ -48,3 +48,37 @@ catalog_refs=$(awk '
   }
   END { exit found ? 0 : 1 }
 ' "$file" || fail 'stale libpkgcatalog v3.0.0 qualification remains'
+
+source_refs=$(awk '
+  /repository: zeppe-lin\/libpkgsource$/ {
+    getline
+    if ($0 ~ /ref: v3\.0\.1$/) ++count
+  }
+  END { print count + 0 }
+' "$file")
+[ "$source_refs" -eq 2 ] ||
+  fail 'both CI matrices must qualify against libpkgsource v3.0.1'
+! awk '
+  /repository: zeppe-lin\/libpkgsource$/ {
+    getline
+    if ($0 ~ /ref: v3\.0\.0$/) found=1
+  }
+  END { exit found ? 0 : 1 }
+' "$file" || fail 'stale libpkgsource v3.0.0 qualification remains'
+
+yaml_refs=$(awk '
+  /repository: zeppe-lin\/libpkgsource-yaml$/ {
+    getline
+    if ($0 ~ /ref: v1\.0\.1$/) ++count
+  }
+  END { print count + 0 }
+' "$file")
+[ "$yaml_refs" -eq 2 ] ||
+  fail 'both CI matrices must qualify against libpkgsource-yaml v1.0.1'
+! awk '
+  /repository: zeppe-lin\/libpkgsource-yaml$/ {
+    getline
+    if ($0 ~ /ref: v1\.0\.0$/) found=1
+  }
+  END { exit found ? 0 : 1 }
+' "$file" || fail 'stale libpkgsource-yaml v1.0.0 qualification remains'

@@ -56,18 +56,18 @@ jobs:
       - name: Check out libpkgcatalog-acquire
         uses: actions/checkout@v4
 
-      - name: Check out libpkgsource 3.0.0
+      - name: Check out libpkgsource 3.0.1
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgsource
-          ref: v3.0.0
+          ref: v3.0.1
           path: dependencies/libpkgsource
 
-      - name: Check out libpkgsource-yaml 1.0.0
+      - name: Check out libpkgsource-yaml 1.0.1
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgsource-yaml
-          ref: v1.0.0
+          ref: v1.0.1
           path: dependencies/libpkgsource-yaml
 
       - name: Check out libpkgcatalog 3.0.1
@@ -228,18 +228,18 @@ jobs:
       - name: Check out libpkgcatalog-acquire
         uses: actions/checkout@v4
 
-      - name: Check out libpkgsource 3.0.0
+      - name: Check out libpkgsource 3.0.1
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgsource
-          ref: v3.0.0
+          ref: v3.0.1
           path: dependencies/libpkgsource
 
-      - name: Check out libpkgsource-yaml 1.0.0
+      - name: Check out libpkgsource-yaml 1.0.1
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgsource-yaml
-          ref: v1.0.0
+          ref: v1.0.1
           path: dependencies/libpkgsource-yaml
 
       - name: Check out libpkgcatalog 3.0.1

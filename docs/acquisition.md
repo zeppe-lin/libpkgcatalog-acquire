@@ -50,9 +50,10 @@ the owning library.
 
 ## Read stability and limits
 
-A document is statted, sized, opened in binary mode, read to the observed size,
-and checked for a trailing byte. Oversize, short, failed, non-regular, or linked
-documents are refused. This detects common concurrent mutation but is not a
+A document is first observed without following its final component. Linked or
+non-regular documents are refused before stream opening; regular documents are
+then sized, opened in binary mode, read to the observed size, and checked for a
+trailing byte. Oversize, short, or failed reads are refused. This detects common concurrent mutation but is not a
 filesystem snapshot guarantee. Callers must provide quiescent roots for one
 acquisition.
 

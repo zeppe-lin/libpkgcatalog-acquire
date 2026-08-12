@@ -1,4 +1,4 @@
-# Project history
+# libpkgcatalog-acquire history
 
 ## 3.0.2
 
