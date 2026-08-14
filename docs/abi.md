@@ -1,7 +1,7 @@
 # ELF ABI policy
 
-The first independent public ABI is `libpkgcatalog-acquire.so.3`. The major
-matches the catalog/source-3 authority generation carried by public value types.
+The current public ABI is `libpkgcatalog-acquire.so.4`. The major matches the
+catalog/source-4 authority generation carried by public value types.
 It does not imply that the earlier in-tree acquisition library had three
 independent releases.
 
@@ -15,8 +15,8 @@ so downstream code can catch it across the shared-library boundary.
 
 Public headers expose `libpkgcatalog` and transitive source authority types.
 They expose no `libpkgsource-yaml` or libyaml types. Pkg-config therefore places
-`libpkgcatalog >= 3.0.0` in `Requires` and keeps `libpkgsource-yaml >= 1.0.0` in
-`Requires.private`.
+`libpkgcatalog >= 4.0.0, < 5.0.0` in `Requires` and keeps
+`libpkgsource-yaml >= 2.0.0, < 3.0.0` in `Requires.private`.
 
 Any public declaration, object representation, enum value, exception hierarchy,
 SONAME, or dependency-placement change requires explicit ABI review and an

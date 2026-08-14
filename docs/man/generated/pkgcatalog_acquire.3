@@ -1,6 +1,6 @@
 .\" Generated from docs/man/pkgcatalog_acquire.3.md; do not edit.
 .\"
-.TH "PKGCATALOG_ACQUIRE" "3" "" "libpkgcatalog\-acquire 3.0.2" "libpkgcatalog\-acquire"
+.TH "PKGCATALOG_ACQUIRE" "3" "" "libpkgcatalog\-acquire 4.0.0" "libpkgcatalog\-acquire"
 .SH NAME
 pkgcatalog_acquire \- acquire explicit native collections into catalog authority
 .SH SYNOPSIS
@@ -35,7 +35,7 @@ Source and catalog semantic refusals remain \f[CR]pkgsource::error\f[R] and \f[C
 The returned catalog snapshot is authoritative.
 Filesystem paths, package directory names, traversal order, and external revision labels are diagnostic observations and provenance, not semantic identity.
 .SH ABI
-The public ABI is \f[CR]libpkgcatalog\-acquire.so.3\f[R].
-Public metadata requires \f[CR]libpkgcatalog >= 3.0.0\f[R]; the YAML adapter is private metadata.
+The public ABI is \f[CR]libpkgcatalog\-acquire.so.4\f[R].
+Public metadata requires \f[CR]libpkgcatalog >= 4.0.0, < 5.0.0\f[R]; the YAML adapter is private metadata.
 .SH SEE ALSO
 \f[CR]pkgcatalog_collection_layout(5)\f[R], \f[CR]pkgcatalog\-scan(1)\f[R], \f[CR]libpkgcatalog(3)\f[R], \f[CR]pkgsource_yaml(3)\f[R]

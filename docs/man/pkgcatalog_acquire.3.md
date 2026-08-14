@@ -1,4 +1,4 @@
-% PKGCATALOG_ACQUIRE(3) libpkgcatalog-acquire 3.0.2 | libpkgcatalog-acquire
+% PKGCATALOG_ACQUIRE(3) libpkgcatalog-acquire 4.0.0 | libpkgcatalog-acquire
 
 # NAME
 
@@ -52,8 +52,8 @@ observations and provenance, not semantic identity.
 
 # ABI
 
-The public ABI is `libpkgcatalog-acquire.so.3`. Public metadata requires
-`libpkgcatalog >= 3.0.0`; the YAML adapter is private metadata.
+The public ABI is `libpkgcatalog-acquire.so.4`. Public metadata requires
+`libpkgcatalog >= 4.0.0, < 5.0.0`; the YAML adapter is private metadata.
 
 # SEE ALSO
 

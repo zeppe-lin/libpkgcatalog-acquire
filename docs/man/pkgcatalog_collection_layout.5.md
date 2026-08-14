@@ -1,4 +1,4 @@
-% PKGCATALOG_COLLECTION_LAYOUT(5) libpkgcatalog-acquire 3.0.2 | libpkgcatalog-acquire
+% PKGCATALOG_COLLECTION_LAYOUT(5) libpkgcatalog-acquire 4.0.0 | libpkgcatalog-acquire
 
 # NAME
 

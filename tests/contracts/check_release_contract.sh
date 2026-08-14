@@ -5,13 +5,14 @@ set -eu
 root=$1
 fail(){ echo "release-contract: $*" >&2; exit 1; }
 require(){ grep -F -- "$2" "$1" >/dev/null || fail "missing in ${1#$root/}: $2"; }
-require "$root/meson.build" "version: '3.0.2'"
-require "$root/meson.build" "version: '>=3.0.0'"
-require "$root/meson.build" "version: '>=1.0.0'"
-require "$root/src/meson.build" "soversion: '3'"
+require "$root/meson.build" "version: '4.0.0'"
+require "$root/meson.build" "version: ['>=4.0.0', '<5.0.0']"
+require "$root/meson.build" "version: ['>=2.0.0', '<3.0.0']"
+require "$root/src/meson.build" "soversion: '4'"
+require "$root/HISTORY.md" '## 4.0.0'
 require "$root/HISTORY.md" '## 3.0.2'
-require "$root/Doxyfile" 'PROJECT_NUMBER         = 3.0.2'
-require "$root/README.md" '`libpkgcatalog-acquire.so.3`'
+require "$root/Doxyfile" 'PROJECT_NUMBER         = 4.0.0'
+require "$root/README.md" '`libpkgcatalog-acquire.so.4`'
 require "$root/docs/history/catalog-2.1-extraction.md" '# Extraction from libpkgcatalog 2.1'
 require "$root/tests/meson.build" "test_cpp_args = ['-UNDEBUG']"
 require "$root/tests/meson.build" 'cpp_args: test_cpp_args'

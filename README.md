@@ -28,7 +28,7 @@ contents. Its text output is not a storage or resolver protocol.
 
 ## Products
 
-- `libpkgcatalog-acquire.so.3` — acquisition request values, filesystem
+- `libpkgcatalog-acquire.so.4` — acquisition request values, filesystem
   observation, two-pass parsing and sealing, and typed acquisition failures.
 - `pkgcatalog-scan` — reference validation and inspection frontend.
 
@@ -55,7 +55,7 @@ meson test -C build --print-errorlogs
 ```
 
 Build shared and static closures separately. The public metadata requires
-`libpkgcatalog >= 3.0.0`; `libpkgsource-yaml >= 1.0.0` and its YAML provider
+`libpkgcatalog >= 4.0.0, < 5.0.0`; `libpkgsource-yaml >= 2.0.0, < 3.0.0` and its YAML provider
 remain private implementation dependencies.
 
 ## License

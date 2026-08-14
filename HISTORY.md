@@ -1,5 +1,18 @@
 # libpkgcatalog-acquire history
 
+## 4.0.0
+
+Catalog-4/source-4 carrier ABI rebuild.
+
+- Rebuilt public acquisition values against `libpkgcatalog.so.4` and advanced
+  the adapter to `libpkgcatalog-acquire.so.4`.
+- Require `libpkgcatalog >= 4.0.0, < 5.0.0` so source-3 catalog carriers cannot
+  enter the process through acquisition.
+- Require `libpkgsource-yaml >= 2.0.0, < 3.0.0` privately so explicit source
+  archive-realization syntax is available to the source-4 owner.
+- Preserve collection-layout generation 1 and acquisition semantics; this is an
+  authority-carrier rebuild, not a filesystem protocol migration.
+
 ## 3.0.2
 
 Parallel-test fixture isolation repair.

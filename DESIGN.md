@@ -2,7 +2,7 @@
 
 ## Role
 
-`libpkgcatalog-acquire.so.3` is a destination-owned adapter between mutable
+`libpkgcatalog-acquire.so.4` is a destination-owned adapter between mutable
 native collection trees and immutable catalog authority.
 
 ```text

@@ -3,7 +3,7 @@
 project(
   'libpkgcatalog-acquire',
   'cpp',
-  version: '3.0.2',
+  version: '4.0.0',
   license: 'GPL-3.0-or-later',
   meson_version: '>=1.2.0',
   default_options: [
@@ -25,13 +25,13 @@ endif
 
 libpkgcatalog_dep = dependency(
   'libpkgcatalog',
-  version: '>=3.0.0',
+  version: ['>=4.0.0', '<5.0.0'],
   required: true,
   static: want_static,
 )
 libpkgsource_yaml_dep = dependency(
   'libpkgsource-yaml',
-  version: '>=1.0.0',
+  version: ['>=2.0.0', '<3.0.0'],
   required: true,
   static: want_static,
 )

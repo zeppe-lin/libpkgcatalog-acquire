@@ -56,25 +56,25 @@ jobs:
       - name: Check out libpkgcatalog-acquire
         uses: actions/checkout@v4
 
-      - name: Check out libpkgsource 3.0.1
+      - name: Check out libpkgsource 4.1.0
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgsource
-          ref: v3.0.1
+          ref: v4.1.0
           path: dependencies/libpkgsource
 
-      - name: Check out libpkgsource-yaml 1.0.1
+      - name: Check out libpkgsource-yaml 2.0.0
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgsource-yaml
-          ref: v1.0.1
+          ref: v2.0.0
           path: dependencies/libpkgsource-yaml
 
-      - name: Check out libpkgcatalog 3.0.1
+      - name: Check out libpkgcatalog 4.0.0
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgcatalog
-          ref: v3.0.1
+          ref: v4.0.0
           path: dependencies/libpkgcatalog
 
       - name: Install build dependencies
@@ -169,7 +169,7 @@ jobs:
           rm -rf "$stage"
           meson install -C build --destdir "$stage"
           tests/contracts/check_installed_docs.sh "$stage$PREFIX"
-          tests/contracts/check_installed_html_docs.sh "$stage$PREFIX" 3.0.2
+          tests/contracts/check_installed_html_docs.sh "$stage$PREFIX" 4.0.0
 
       - name: Install
         run: meson install -C build
@@ -187,8 +187,8 @@ jobs:
             $(pkg-config "${flags[@]}" --cflags --libs libpkgcatalog-acquire) \
             -o installed-consumer
           ./installed-consumer
-          test "$(pkg-config --modversion libpkgcatalog-acquire)" = 3.0.2
-          tests/cli/scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 3.0.2
+          test "$(pkg-config --modversion libpkgcatalog-acquire)" = 4.0.0
+          tests/cli/scan_tool_test.sh "$PREFIX/bin/pkgcatalog-scan" 4.0.0
 
       - name: Audit shared dependency boundary
         if: matrix.mode == 'shared'
@@ -198,10 +198,10 @@ jobs:
           library=$(find build -type f -name 'libpkgcatalog-acquire.so.*' \
             ! -type l -print -quit)
           readelf -d "$library" | tee acquire.dynamic
-          grep -F 'Library soname: [libpkgcatalog-acquire.so.3]' acquire.dynamic
-          grep -F 'Shared library: [libpkgcatalog.so.3]' acquire.dynamic
-          grep -F 'Shared library: [libpkgsource-yaml.so.1]' acquire.dynamic
-          grep -F 'Shared library: [libpkgsource.so.3]' acquire.dynamic
+          grep -F 'Library soname: [libpkgcatalog-acquire.so.4]' acquire.dynamic
+          grep -F 'Shared library: [libpkgcatalog.so.4]' acquire.dynamic
+          grep -F 'Shared library: [libpkgsource-yaml.so.2]' acquire.dynamic
+          grep -F 'Shared library: [libpkgsource.so.4]' acquire.dynamic
           ! grep -E 'libyaml|libcrypto|libpkgcatalog-codec|libpkgsource-codec|libpkgplan|libpkgstate' \
             acquire.dynamic
 
@@ -228,25 +228,25 @@ jobs:
       - name: Check out libpkgcatalog-acquire
         uses: actions/checkout@v4
 
-      - name: Check out libpkgsource 3.0.1
+      - name: Check out libpkgsource 4.1.0
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgsource
-          ref: v3.0.1
+          ref: v4.1.0
           path: dependencies/libpkgsource
 
-      - name: Check out libpkgsource-yaml 1.0.1
+      - name: Check out libpkgsource-yaml 2.0.0
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgsource-yaml
-          ref: v1.0.1
+          ref: v2.0.0
           path: dependencies/libpkgsource-yaml
 
-      - name: Check out libpkgcatalog 3.0.1
+      - name: Check out libpkgcatalog 4.0.0
         uses: actions/checkout@v4
         with:
           repository: zeppe-lin/libpkgcatalog
-          ref: v3.0.1
+          ref: v4.0.0
           path: dependencies/libpkgcatalog
 
       - name: Install build dependencies

@@ -14,7 +14,7 @@ installs do not depend on Pandoc or Doxygen.
 With `-Dhtml_docs=enabled`, the build produces:
 
 ```text
-build/docs/html/libpkgcatalog-acquire/3.0.2/
+build/docs/html/libpkgcatalog-acquire/4.0.0/
 ├── index.html
 ├── design.html
 ├── abi.html
@@ -34,7 +34,7 @@ the artifact, absolute source/build paths, and missing required pages.
 The artifact installs under:
 
 ```text
-${prefix}/share/htmldocs/libpkgcatalog-acquire/3.0.2/
+${prefix}/share/htmldocs/libpkgcatalog-acquire/4.0.0/
 ```
 
 Use the `html-docs` install tag for selective staging. The project-owned install

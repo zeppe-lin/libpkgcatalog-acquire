@@ -24,12 +24,16 @@ count_requirement(){
 grep -F 'Name: libpkgcatalog-acquire' "$file" >/dev/null
 grep -F "Version: $version" "$file" >/dev/null
 grep -E 'Libs:.*-lpkgcatalog-acquire([[:space:]]|$)' "$file" >/dev/null
-[ "$(count_requirement Requires: libpkgcatalog)" -eq 1 ] || fail 'catalog owner must be public exactly once'
-grep -E '^Requires:.*libpkgcatalog[[:space:]]*>=[[:space:]]*3\.0\.0([,[:space:]]|$)' "$file" >/dev/null ||
-  fail 'catalog floor is missing'
-[ "$(count_requirement Requires.private: libpkgsource-yaml)" -eq 1 ] ||
-  fail 'YAML adapter must be private exactly once'
-grep -E '^Requires\.private:.*libpkgsource-yaml[[:space:]]*>=[[:space:]]*1\.0\.0([,[:space:]]|$)' "$file" >/dev/null ||
-  fail 'YAML adapter floor is missing'
+[ "$(count_requirement Requires: libpkgcatalog)" -eq 2 ] || fail 'catalog owner must be public exactly twice: libpkgcatalog >= 4.0.0, libpkgcatalog < 5.0.0'
+grep -E '^Requires:.*libpkgcatalog[[:space:]]*>=[[:space:]]*4\.0\.0([,[:space:]]|$)' "$file" >/dev/null ||
+  fail 'catalog-4 floor is missing'
+grep -E '^Requires:.*libpkgcatalog[[:space:]]*<[[:space:]]*5\.0\.0([,[:space:]]|$)' "$file" >/dev/null ||
+  fail 'catalog-5 ceiling is missing'
+[ "$(count_requirement Requires.private: libpkgsource-yaml)" -eq 2 ] ||
+  fail 'YAML adapter must be private exactly twice: libpkgsource-yaml >= 2.0.0, libpkgsource-yaml < 3.0.0'
+grep -E '^Requires\.private:.*libpkgsource-yaml[[:space:]]*>=[[:space:]]*2\.0\.0([,[:space:]]|$)' "$file" >/dev/null ||
+  fail 'YAML adapter 1.1 floor is missing'
+grep -E '^Requires\.private:.*libpkgsource-yaml[[:space:]]*<[[:space:]]*3\.0\.0([,[:space:]]|$)' "$file" >/dev/null ||
+  fail 'YAML adapter 2.0 ceiling is missing'
 ! grep -E '^Requires:.*libpkgsource-yaml|^Requires\.private:.*libpkgcatalog([,[:space:]]|$)' "$file" >/dev/null ||
   fail 'dependency appears in the wrong metadata field'
